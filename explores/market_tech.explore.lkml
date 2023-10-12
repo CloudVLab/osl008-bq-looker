@@ -1,6 +1,6 @@
 include: "/views/**/*.view.lkml"
-explore: market_tec {
-  view_label: "Market Tec"
-  label: "Market Tec"
-  description: "Derived table built to show case in the Market Tec."
+explore: market_tech {
+  view_label: "Market Tech"
+  label: "Market Tech"
+  description: "Derived table built to show case in the Market Tech."
 }

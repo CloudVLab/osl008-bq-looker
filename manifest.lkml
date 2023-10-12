@@ -11,7 +11,7 @@ constant: DB_CONNECTION {
 }
 
 constant: PROJECT_CURATED_ZONE_EXT {
-  value: "prj-pr-curated-zone-ext-1595"
+  value: "cloud-training-demos"
 }
 
 constant: DATA_SET {

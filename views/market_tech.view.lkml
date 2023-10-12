@@ -1,4 +1,4 @@
-view: market_tec {
+view: market_tech {
   derived_table: {
     sql:
       WITH
