@@ -1,4 +1,4 @@
-project_name: "enterprise external"
+project_name: "market_tech"
 
 #New LookML Runtime provides faster LookML validation and content validation
 new_lookml_runtime: yes
@@ -6,7 +6,7 @@ new_lookml_runtime: yes
 ################ Constants ################
 
 constant: DB_CONNECTION {
-  value: "looker-bq-sa-bi-md-ext"
+  value: "bigquery_public_data_looker"
   export: override_required
 }
 
