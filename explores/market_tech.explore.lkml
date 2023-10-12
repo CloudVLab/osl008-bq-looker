@@ -1,4 +1,4 @@
-include: "/market_data/views/**/*.view.lkml"
+include: "/views/**/*.view.lkml"
 explore: market_tec {
   view_label: "Market Tec"
   label: "Market Tec"
