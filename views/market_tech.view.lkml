@@ -55,7 +55,7 @@ view: market_tech {
       (ob.bid_level_1_qty + ob.ask_level_1_qty) / 2 AS avg_level_1_qty,
       ((ob.bid_level_1_px / 100) + (ob.ask_level_1_px / 100)) / 2 AS avg_level_1_px_dec,
       (((ob.bid_level_1_px / 100) + (ob.ask_level_1_px / 100)) / 2) * ((ob.bid_level_1_qty + ob.ask_level_1_qty) / 2) AS avg_level_1_price_by_average_qty
-      from cme.orderbook_fno ob
+      from cloud-training-demos.fsi_customer_demo_cme
       WHERE {% condition run_date %} cycle_date {% endcondition %}
       AND {% condition exchange %} exchange_mic {% endcondition %}
       AND {% condition symbol %} glbx_sym {% endcondition %}
