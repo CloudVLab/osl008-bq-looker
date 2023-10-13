@@ -23,21 +23,16 @@ constant: DATA_SET_REF {
 }
 
 constant: MKT_DATA_T_ORDERBOOK_GLOBEX_10_LVL_DEEP {
-  value:"`@{PROJECT_CURATED_ZONE_EXT}.@{DATA_SET}.t_orderbook_globex_10_lvl_deep`"
-  export: none
-}
-
-constant: MKT_DATA_T_QUOTE_REQUEST_GLOBEX {
-  value:"`@{PROJECT_CURATED_ZONE_EXT}.@{DATA_SET}.t_quote_request_globex`"
+  value:"`@{PROJECT_CURATED_ZONE_EXT}.@{DATA_SET}.orderbook_fno`"
   export: none
 }
 
 constant: MKT_DATA_T_STATISTICS_GLOBEX {
-  value:"`@{PROJECT_CURATED_ZONE_EXT}.@{DATA_SET}.t_statistics_globex`"
+  value:"`@{PROJECT_CURATED_ZONE_EXT}.@{DATA_SET}.statistics_fno`"
   export: none
 }
 
 constant: MKT_DATA_T_INSTRUMENT_FNO {
-  value:"`@{PROJECT_CURATED_ZONE_EXT}.@{DATA_SET_REF}.t_instrument_fno`"
+  value:"`@{PROJECT_CURATED_ZONE_EXT}.@{DATA_SET_REF}.instrument_fno`"
   export: none
 }
