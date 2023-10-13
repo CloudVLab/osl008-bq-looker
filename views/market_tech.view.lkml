@@ -18,7 +18,7 @@ view: market_tech {
                 final_settlement_date,
                 DATE_DIFF(DATE(last_trade_date), DATE(first_trade_date), DAY) AS num_days_contract,
                 DATE_DIFF(DATE(final_settlement_date),date({% date_end run_date %}), DAY) AS num_days_to_expiry
-              FROM @{MKT_DATA_T_INSTRUMENT_FNO} inst
+              FROM cloud-training-demos.fsi_customer_demo_cme.instrument_fno inst
               WHERE {% condition run_date %} run_date {% endcondition %}
                 AND {% condition symbol %} glbx_sym {% endcondition %}
 
@@ -29,7 +29,7 @@ view: market_tech {
       inst_sym,
       inst_prod_cd,
       MAX(vol_qty) AS max_vol
-      FROM @{MKT_DATA_T_STATISTICS_GLOBEX}
+      FROM cloud-training-demos.fsi_customer_demo_cme.statistics_fno
       WHERE {% condition run_date %} cyc_dt {% endcondition %}
       AND {% condition symbol %} inst_prod_cd {% endcondition %}
 
@@ -54,7 +54,7 @@ view: market_tech {
       (ob.bid_lvl_1_qty + ob.ask_lvl_1_qty) / 2 AS avg_level_1_qty,
       ((ob.bid_lvl_1_px_dec / 100) + (ob.ask_lvl_1_px_dec / 100)) / 2 AS avg_level_1_px_dec,
       (((ob.bid_lvl_1_px_dec / 100) + (ob.ask_lvl_1_px_dec / 100)) / 2) * ((ob.bid_lvl_1_qty + ob.ask_lvl_1_qty) / 2) AS avg_level_1_price_by_average_qty
-      from @{MKT_DATA_T_ORDERBOOK_GLOBEX_10_LVL_DEEP} ob
+      from cloud-training-demos.fsi_customer_demo_cme.orderbook_fno ob
       WHERE {% condition run_date %} cyc_dt {% endcondition %}
       AND {% condition exchange %} inst_exch_mrkt_id {% endcondition %}
       AND {% condition symbol %} inst_prod_cd {% endcondition %}
