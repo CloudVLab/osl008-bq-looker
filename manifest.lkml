@@ -15,11 +15,11 @@ constant: PROJECT_CURATED_ZONE_EXT {
 }
 
 constant: DATA_SET {
-  value: "marketdata"
+  value: "fsi_customer_demo_cme"
 }
 
 constant: DATA_SET_REF {
-  value: "refdata"
+  value: "fsi_customer_demo_cme"
 }
 
 constant: MKT_DATA_T_ORDERBOOK_GLOBEX_10_LVL_DEEP {
