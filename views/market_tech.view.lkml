@@ -25,45 +25,46 @@ view: market_tech {
       ),
       tot_vol AS
       (
-      SELECT cyc_dt,
-      inst_sym,
-      inst_prod_cd,
-      MAX(vol_qty) AS max_vol
+      SELECT cycle_date,
+      glbx_sym as inst_sym,
+      clr_sym as inst_prod_cd,
+      MAX(volume_qty) AS max_vol
       FROM cloud-training-demos.fsi_customer_demo_cme.statistics_fno
-      WHERE {% condition run_date %} cyc_dt {% endcondition %}
-      AND {% condition symbol %} inst_prod_cd {% endcondition %}
+      WHERE {% condition run_date %} cycle_date {% endcondition %}
+      AND {% condition symbol %} glbx_sym {% endcondition %}
 
-      GROUP BY cyc_dt,
-      inst_sym,
-      inst_prod_cd
+      GROUP BY cycle_date,
+      clr_sym,
+      glbx_sym
+
       ),
       top_of_book_stats AS
       (
-      SELECT cyc_dt,
-      inst_exch_mrkt_id AS exch_id,
-      inst_ast_sub_clas,
-      inst_sym,
-      inst_ctrt_prd_cd,
-      inst_prod_cd,
-      inst_prod_typ,
-      (bid_lvl_1_px_dec / 100) AS bid_lvl_1_px_dec,
-      (ask_lvl_1_px_dec / 100) AS ask_lvl_1_px_dec,
-      bid_lvl_1_qty,
-      ask_lvl_1_qty,
+      SELECT cycle_date,
+      exchange_mic AS exch_id,
+      underlying_product as inst_ast_sub_clas,
+      glbx_sym as inst_sym,
+      contract_period as inst_ctrt_prd_cd,
+      clr_sym as inst_prod_cd,
+      security_type as inst_prod_typ,
+      (bid_level_1_px / 100) AS bid_lvl_1_px_dec,
+      (ask_level_1_px / 100) AS ask_lvl_1_px_dec,
+      bid_level_1_qty as bid_lvl_1_qty,
+      ask_level_1_qty as ask_lvl_1_qty,
       --
-      (ob.bid_lvl_1_qty + ob.ask_lvl_1_qty) / 2 AS avg_level_1_qty,
-      ((ob.bid_lvl_1_px_dec / 100) + (ob.ask_lvl_1_px_dec / 100)) / 2 AS avg_level_1_px_dec,
-      (((ob.bid_lvl_1_px_dec / 100) + (ob.ask_lvl_1_px_dec / 100)) / 2) * ((ob.bid_lvl_1_qty + ob.ask_lvl_1_qty) / 2) AS avg_level_1_price_by_average_qty
-      from cloud-training-demos.fsi_customer_demo_cme.orderbook_fno ob
-      WHERE {% condition run_date %} cyc_dt {% endcondition %}
-      AND {% condition exchange %} inst_exch_mrkt_id {% endcondition %}
-      AND {% condition symbol %} inst_prod_cd {% endcondition %}
-      AND {% condition period %} inst_ctrt_prd_cd {% endcondition %}
+      (ob.bid_level_1_qty + ob.ask_level_1_qty) / 2 AS avg_level_1_qty,
+      ((ob.bid_level_1_px / 100) + (ob.ask_level_1_px / 100)) / 2 AS avg_level_1_px_dec,
+      (((ob.bid_level_1_px / 100) + (ob.ask_level_1_px / 100)) / 2) * ((ob.bid_level_1_qty + ob.ask_level_1_qty) / 2) AS avg_level_1_price_by_average_qty
+      from cme.orderbook_fno ob
+      WHERE {% condition run_date %} cycle_date {% endcondition %}
+      AND {% condition exchange %} exchange_mic {% endcondition %}
+      AND {% condition symbol %} glbx_sym {% endcondition %}
+      AND {% condition period %} contract_period {% endcondition %}
       )
       SELECT *
       FROM
       (
-      SELECT tob.cyc_dt,
+      SELECT tob.cycle_date,
       tob.exch_id,
       tob.inst_sym,
       MAX(tob.inst_prod_cd) AS prod_cd,
@@ -71,7 +72,7 @@ view: market_tech {
       MAX(id.contract_period) AS contract_period,
       MAX(id.put_call_ind) AS put_call_ind,
       MAX(id.strike_px) AS strike_px,
-      MAX(num_days_to_expiry) AS num_days_to_expiry,
+      MAX(id.num_days_to_expiry) AS num_days_to_expiry,
       --
       MAX(tv.max_vol) AS tot_volume,
       --
@@ -82,10 +83,10 @@ view: market_tech {
       APPROX_QUANTILES((tob.ask_lvl_1_px_dec) - (tob.bid_lvl_1_px_dec),2)[OFFSET(1)] AS med_top_bidask_spread
       FROM top_of_book_stats tob
       LEFT JOIN tot_vol tv
-      ON tob.cyc_dt = tv.cyc_dt AND tob.inst_sym = tv.inst_sym
+      ON tob.cycle_date = tv.cycle_date AND tob.inst_sym = tv.inst_sym
       LEFT JOIN inst_details id
-      ON tob.cyc_dt = id.run_date AND tob.inst_sym = id.glbx_alias
-      GROUP BY cyc_dt, exch_id, inst_sym
+      ON tob.cycle_date = id.run_date AND tob.inst_sym = id.glbx_alias
+      GROUP BY cycle_date, exch_id, inst_sym
       )
       WHERE contract_period IS NOT NULL
       AND tot_volume >= 1
@@ -100,7 +101,7 @@ view: market_tech {
     datatype: date
     can_filter: yes
     hidden: yes
-    sql: ${TABLE}.cyc_dt
+    sql: ${TABLE}.cycle_date
       ;;
   }
 
@@ -110,7 +111,7 @@ view: market_tech {
     convert_tz: no
     datatype: date
     sql: {% condition %} ${cycle_date_hidden_dimension} {% endcondition %};;
-    suggest_dimension: cyc_dt
+    suggest_dimension: cycle_date
   }
 
   # filter: run_date {
@@ -136,11 +137,11 @@ view: market_tech {
     suggest_dimension: contract_period
   }
 
-  dimension: cyc_dt {
+  dimension: cycle_date {
     type: date
     label: "Cycle Date"
     datatype: date
-    sql: ${TABLE}.cyc_dt ;;
+    sql: ${TABLE}.cycle_date ;;
   }
 
   dimension: exch_id {
