@@ -18,7 +18,7 @@ view: market_tech {
                 final_settlement_date,
                 DATE_DIFF(DATE(last_trade_date), DATE(first_trade_date), DAY) AS num_days_contract,
                 DATE_DIFF(DATE(final_settlement_date),date({% date_end run_date %}), DAY) AS num_days_to_expiry
-              FROM cloud-training-demos.fsi_customer_demo_cme.instrument_fno inst
+              FROM cloud-training-demos.fsi_customer_demo_cme.instrument_fno
               WHERE {% condition run_date %} run_date {% endcondition %}
                 AND {% condition symbol %} glbx_sym {% endcondition %}
 
