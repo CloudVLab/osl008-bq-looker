@@ -120,9 +120,9 @@ view: market_tech {
   # }
 
   filter: symbol {
-    label: "Instrument Symbol"
+    label: "Product Code"
     type: string
-    suggest_dimension: inst_sym
+    suggest_dimension: inst_prod_cd
   }
 
   filter: exchange {
@@ -200,7 +200,7 @@ view: market_tech {
 
   dimension: avg_top_px_dec {
     type: number
-    label: "Avg Top Price"
+    label: "Option Premium"
     sql: ${TABLE}.avg_top_px_dec ;;
   }
 
