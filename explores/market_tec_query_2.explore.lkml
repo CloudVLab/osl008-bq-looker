@@ -1,4 +1,4 @@
-include: "/market_data/views/**/*.view.lkml"
+include: "/market_tech/views/**/*.view.lkml"
 explore: market_tec_query_2 {
   view_label: "TOB Changes by Product"
   label: "TOB Changes by Product"
