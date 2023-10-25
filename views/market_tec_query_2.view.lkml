@@ -4,7 +4,7 @@ view: market_tec_query_2 {
         WITH
           undly_instrument AS
         (
-        SELECT distinct 
+        SELECT distinct
                inst.run_date as cycle_date,
                inst.exch_mic,
                inst.glbx_alias as glbx_instrument,
@@ -13,17 +13,17 @@ view: market_tec_query_2 {
                inst.put_call_ind,
                inst.strike_px,
                inst.contract_period,
-               case when (inst.put_call_ind = 'C' or inst.put_call_ind = 'P')  then und_inst.glbx_prod_cd else inst.glbx_sym end as undly_glbx_prod_cd,
-               case when (inst.put_call_ind = 'C' or inst.put_call_ind = 'P') then und_inst.glbx_instrument else inst.glbx_alias end as undly_glbx_instrument
-            FROM cloud-training-demos.fsi_customer_demo_cme.instrument_fno inst 
+               case when (inst.put_call_ind = 'C' or inst.put_call_ind = 'P')  then und_inst.glbx_sym else inst.glbx_sym end as undly_glbx_prod_cd,
+               case when (inst.put_call_ind = 'C' or inst.put_call_ind = 'P') then und_inst.glbx_alias else inst.glbx_alias end as undly_glbx_instrument
+            FROM cloud-training-demos.fsi_customer_demo_cme.instrument_fno inst
             LEFT JOIN cloud-training-demos.fsi_customer_demo_cme.option_series_fno opt
               ON inst.run_date = opt.run_date AND inst.Instr_guid_int = opt.Instr_guid_int
-            LEFT JOIN cloud-training-demos.fsi_customer_demo_cme.underlying_instrument_fno und_inst
-              ON inst.run_date = und_inst.cycle_date AND opt.underlying_instr_guid_int = und_inst.Instr_guid_int
+            LEFT JOIN cloud-training-demos.fsi_customer_demo_cme.instrument_fno und_inst
+              ON inst.run_date = und_inst.run_date AND opt.underlying_instr_guid_int = und_inst.Instr_guid_int
           where
           {% condition run_date %} inst.run_date {% endcondition %}
           AND {% condition exchange %} inst.exch_mic {% endcondition %}
-          AND ({% condition undly_glbx_prod_cd %} und_inst.glbx_instrument {% endcondition %} OR {% condition undly_glbx_prod_cd %} inst.glbx_sym {% endcondition %})
+          AND ({% condition undly_glbx_prod_cd %} und_inst.glbx_sym {% endcondition %} OR {% condition undly_glbx_prod_cd %} inst.glbx_sym {% endcondition %})
     ),
     ob_change_calc as
     (
@@ -36,14 +36,8 @@ view: market_tec_query_2 {
         implied_book_ind,
         uin.undly_glbx_prod_cd,
         uin.undly_glbx_instrument,
-        
-            {% if parameter_tm_increment._parameter_value == 'HOUR' %}
-              extract(HOUR from datetime(transaction_ts))
-            {% elsif parameter_tm_increment._parameter_value  == 'MINUTE' %}
-              extract(MINUTE from datetime(transaction_ts))
-           {% else %}
-              extract(SECOND from datetime(transaction_ts))  {% endif %} as tm_increment,
       
+
       extract(HOUR from datetime(transaction_ts)) as tm_increment_value_utc,
       extract(HOUR from datetime(transaction_ts, 'America/Chicago')) as tm_increment_value_cst,
       
@@ -56,7 +50,7 @@ view: market_tec_query_2 {
       ELSE 1
       END AS ord_book_upd
       FROM cloud-training-demos.fsi_customer_demo_cme.orderbook_fno  ob
-      inner join cloud-training-demos.fsi_customer_demo_cme.underlying_instrument_fno uin
+      inner join undly_instrument uin
       on ob.exchange_mic = uin.exch_mic and ob.glbx_sym = uin.glbx_instrument
       WHERE
       {% condition run_date %} ob.cycle_date {% endcondition %}
@@ -65,28 +59,18 @@ view: market_tec_query_2 {
       AND security_type in ("FUT", "OPT")
       AND {% condition undly_glbx_prod_cd %} uin.undly_glbx_prod_cd {% endcondition %}
       AND implied_book_ind = 'N'
-      AND
-      {% if parameter_tm_increment._parameter_value  == 'MINUTE' %}
-      {% condition hour %} hour {% endcondition %}
-      {% elsif parameter_tm_increment._parameter_value  == 'SECOND' %}
-      {% condition hour %} hour {% endcondition %} AND {% condition minute %} extract(MINUTE from datetime(transaction_ts, 'America/Chicago')) {% endcondition %}
-      {% else %}
-      {% condition hour %} hour {% endcondition %}
-      {% endif %}
       ),
       tm_increment_stats as
       (
       SELECT  cycle_date,
       undly_glbx_prod_cd,
       product_type,
-      tm_increment,
       tm_increment_value_cst,
       sum(ord_book_upd) as num_ob_updates
       FROM ob_change_calc occ
       group by cycle_date,
       undly_glbx_prod_cd,
       product_type,
-      tm_increment,
       tm_increment_value_cst
       )
       select *
@@ -94,14 +78,14 @@ view: market_tec_query_2 {
       ;;
   }
   
-  parameter: parameter_tm_increment {
-    type: unquoted
-    label: "Time Increment"
-    default_value: "MINUTE"
-    allowed_value: {label: "Minute" value: "MINUTE"}
-    allowed_value: {label: "Hour" value: "HOUR"}
-    allowed_value: {label: "Second" value: "SECOND"}
-  }
+  #parameter: parameter_tm_increment {
+  #  type: unquoted
+  #  label: "Time Increment"
+  #  default_value: "MINUTE"
+  #  allowed_value: {label: "Minute" value: "MINUTE"}
+  #  allowed_value: {label: "Hour" value: "HOUR"}
+  #  allowed_value: {label: "Second" value: "SECOND"}
+  #}
   
   dimension: cycle_date_hidden_dimension{
     type: string
@@ -164,11 +148,11 @@ view: market_tec_query_2 {
     sql: ${TABLE}.product_type ;;
   }
   
-  dimension: tm_increment {
-    type: string
-    label: "Time Increment"
-    sql: ${TABLE}.tm_increment ;;
-  }
+  #dimension: tm_increment {
+  #  type: string
+  #  label: "Time Increment"
+  #  sql: ${TABLE}.tm_increment ;;
+  #}
   
   dimension: tm_increment_cst {
     type: string
